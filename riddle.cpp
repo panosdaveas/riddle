@@ -8,7 +8,6 @@
 #define width 20
 #define height 20
 #define  MAX_LEN  100
-#define arr_size 3
 
 struct index{
 	char q[MAX_LEN];
@@ -43,9 +42,6 @@ void open_file(){
     	library=(index*) realloc(library,sizeof(index) * size);
     	fgets(stream.q,MAX_LEN,fp);
     	fgets(stream.a,MAX_LEN,fp);
-    	if(feof(fp)){
-    		break;
-    	}
     	remove_newline(stream.q);
     	remove_newline(stream.a);
     	library[i]=stream;
