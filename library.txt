@@ -2,6 +2,17 @@
 0
 2b || !2b
 hamlet
+Mary + Lily
+jesus
+Mary + Mary
+summary
+FEmale
+ironman
+jobs*3.14
+applepie
+4->2->3->0
+sphinx
+EADGBE
+guitar
 * oooOoooo
 mars
-
