@@ -9,17 +9,43 @@
 #define height 20
 #define initial_speed 400
 #define arr_size 3
+#define  MAX_LEN  100
 
 struct index{
-	char q[20];
-	char a[20];
-}library [arr_size]={
-					 {"* oooOoooo","mars"},     //put {question,answer}, increase arr_size by 1!!
-					 {"1+1","2"},
-					 {"2b || !2b","hamlet"},
-		 			 };
+	char q[MAX_LEN];
+	char a[MAX_LEN];
+}library[arr_size];
 
-typedef struct index index;
+//typedef struct index index;
+void remove_newline(char str[]){
+	int i=0;
+	while(str[i]!='\0'){
+		if(str[i]=='\n'){
+			str[i]='\0';
+		}
+	   i++;
+	 }
+}
+
+void open_file(){
+	FILE *fp;
+	char file[20]="library.txt";
+	fp=fopen(file,"r");
+    if (fp==NULL) {
+    //  fprintf(stderr,"Impossible to open the file %s\n\n",file);
+      exit(1);
+    }
+    int i=0;
+
+    while(!feof(fp) ){
+    	fgets(library[i].q,MAX_LEN,fp);
+    	fgets(library[i].a,MAX_LEN,fp);
+    	remove_newline(library[i].q);
+    	remove_newline(library[i].a);
+    //	printf("%s ,%s\n",library[i].q,library[i].a);
+    	i++;
+    }
+}
 
 void Gotoxy(int x, int y) {
   COORD coord; coord.X = x; coord.Y = y;
@@ -50,7 +76,24 @@ void print(int qsize,int asize, char *quest,int level){
 		int x=0;
 		for(x=0; x<width; x++){
 			if(is_border(x,y)){
-				buffer[x]='x';
+				if(y==0 && x==0) {
+					    	buffer[x]=201;
+					    }
+                    	else if(y==height-1 && x==0){
+                    		buffer[x]=200;
+                    	}
+                    	else if(y==height-1 && x==width-1){
+                    		buffer[x]=188;
+                    	}
+                    	else if(y==0 && x==width-1){
+                    		buffer[x]=187;
+                    	}
+                    	else if(y==height-1 || y==0){
+                    		buffer[x]=205;
+                    	}
+                         else {
+                         	buffer[x]=186;
+                   		}
 			}
 			else if(is_quest(x,y,qsize)){
 				int i=0;
@@ -69,7 +112,7 @@ void print(int qsize,int asize, char *quest,int level){
 		    else{
 				 buffer[x]=' ';
 	    	}
-	        if (x==0 && y==height-1){
+	        if (x==1 && y==height-1){
 				buffer[x]='l';
 				x++;
 				buffer[x]='v';
@@ -110,12 +153,14 @@ current currentlevel(current cur,int level){
 }
 
 void play(){
+	open_file();
 	int level=0;
 	int result;
 	do{
 	   current cur=currentlevel(cur,level);
 		do{
 			print(cur.len_q,cur.len_a,cur.index.q,level);
+			printf("\n    Enter to solve");
 			printf("\n    ESC to exit");
 			result=1;
 			int i=0;
@@ -147,6 +192,10 @@ void play(){
 					printf("%c",input[i]);
 	                Gotoxy(pos,y);
 					input[i]='\0';
+				}
+				if(c==27){
+					system("cls");
+					exit(0);
 				}
 			}
 			input[i]='\0';
@@ -229,6 +278,7 @@ void play(){
 }*/
 
 int main(){
+//	open_file();
 	play();
 	return 0;
 }
