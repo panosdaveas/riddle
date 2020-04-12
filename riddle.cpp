@@ -8,15 +8,24 @@
 #define width 20
 #define height 20
 #define  MAX_LEN  100
+#define RED	4
+#define BLACK	0
+
+void SetColorAndBackground(int ForgC, int BackC){
+     WORD wColor = ((BackC & 0x0F) << 4) + (ForgC & 0x0F);
+     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wColor);
+     return;
+}
 
 struct index{
 	char q[MAX_LEN];
 	char a[MAX_LEN];
+    char h[MAX_LEN];
 	int size;
 };
 
 typedef struct index index;
-struct index *library;//=(index*)malloc(sizeof(index));
+struct index *library;
 
 void remove_newline(char str[]){
 	int i=0;
@@ -42,8 +51,10 @@ void open_file(){
     	library=(index*) realloc(library,sizeof(index) * size);
     	fgets(stream.q,MAX_LEN,fp);
     	fgets(stream.a,MAX_LEN,fp);
+        fgets(stream.h,MAX_LEN,fp);
     	remove_newline(stream.q);
     	remove_newline(stream.a);
+    	remove_newline(stream.h);
     	library[i]=stream;
     	library->size=size;
     	i++;
@@ -124,23 +135,20 @@ void print(int qsize,int asize, char *quest,int level){
 				x++;
 				buffer[x]='.';
 				x++;
-		     	int l=level+1;
-				while (l != 0) {
-				   l= l % 10;
-       		  	   buffer[x]= '0'+l;
-       		  	   l=l/10;
-				   x++;
-   		        }
-   			  //x--;
-			}
-		}
-		buffer[width]='\0';
+                level++;
+                if (level<10) {
+                   buffer[x]='0'+level; 
+                }
+                else if (level>=10){
+                    buffer[x]='0'+level/10;
+                    x++;
+                    buffer[x]='0'+level%10;
+                }
+            }
+        }
+        buffer[width]='\0';
         printf("%s\n",buffer);
 	}
-}
-
-void print_level(int level){
-	printf("lv.%d",level);
 }
 
 struct current{
@@ -157,18 +165,24 @@ current currentlevel(current cur,int level){
 	 return cur;
 }
 
+void print_hint(char *hint,int i){
+	Gotoxy(width/2+5,height+3);
+	hint = library[i].h;
+	printf(":%s",hint);
+}
+
 void play(){
-//	open_file();
 	int level=0;
 	int result;
 	do{
-	   current cur=currentlevel(cur,level);
+	    current cur=currentlevel(cur,level);
 		do{
 			print(cur.len_q,cur.len_a,cur.index.q,level);
 			printf("\n    Enter to solve");
-			printf("\n    ESC to exit");
-			Gotoxy(width+3,height/2);
-			printf("O");
+			printf("\n     ESC to exit");
+			SetColorAndBackground(4,0);
+			printf("\n     ! for HINT");
+			SetColorAndBackground(7,0);
 			result=1;
 			int i=0;
 			char input [cur.len_a];
@@ -204,6 +218,10 @@ void play(){
 					system("cls");
 					return;
 				}
+				if(c==33){
+					print_hint(library[i].a,level);
+					break;
+				}
 			}
 			input[i]='\0';
 			result =strcmp(input,cur.index.a);
@@ -213,8 +231,9 @@ void play(){
 			}
             Gotoxy(0,0);
         }while(result!=0);
+        system("cls");
         Gotoxy(0,0);
-    }while(level<library->size);
+    }while(level<library->size-1);
 }
 
 int main(){
@@ -222,5 +241,6 @@ int main(){
 	play();
 	system("cls");
 	free(library);
+    system("cls");
 	return 0;
 }
