@@ -171,6 +171,21 @@ void print_hint(char *hint,int i){
 	printf(":%s",hint);
 }
 
+char caps_lock_trick(char c){
+    if(c>='A' && c<='Z'){
+        c+='a'-'A';
+    }
+    return c;
+}
+
+void win_message(){
+    char c[MAX_LEN]="You Win!";
+    Gotoxy(width/2 - strlen(c)/2, height/2);
+    printf("%s",c);
+    Gotoxy(0, height);
+    system("pause");
+}
+
 void play(){
 	int level=0;
 	int result;
@@ -193,6 +208,7 @@ void play(){
 			char c;
 			while(i<cur.len_a+1){
 				c=getch();
+                c=caps_lock_trick(c);
 				if(c=='\r' || pos==x-1 ){
 					break;
 				}
@@ -234,13 +250,14 @@ void play(){
         system("cls");
         Gotoxy(0,0);
     }while(level<library->size-1);
+    if (level==library->size-1) {
+        win_message();
+    }
 }
 
 int main(){
 	open_file();
 	play();
-	system("cls");
 	free(library);
-    system("cls");
 	return 0;
 }
