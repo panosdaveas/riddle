@@ -111,14 +111,15 @@ void print(int qsize,int asize, char *quest,int level){
                          	buffer[x]=186;
                    		}
 			}
-			else if(is_quest(x,y,qsize)){
-				int i=0;
-				for(i=0; i<qsize; i++){
-					buffer[x]=quest[i];
-					x++;
-				}
-			}
-			else if(is_answer(x,y,asize)){
+        //works if quest is 1 printed in one row!    
+		//	else if(is_quest(x,y,qsize)){
+		//		int i=0;
+		//		for(i=0; i<qsize; i++){
+		//			buffer[x]=quest[i];
+		//			x++;
+		//		}
+		//	}
+			else if (is_answer(x,y,asize)){
 				int i=0;
 				for(i=0; i<asize; i++){
 					buffer[x]='*';
@@ -149,6 +150,55 @@ void print(int qsize,int asize, char *quest,int level){
         buffer[width]='\0';
         printf("%s\n",buffer);
 	}
+    //works for up to 2 rows ofalse,f quest input 
+    //in library.txt separate the lines with key character %
+    //ig hello%world will print:
+    //hello
+    //world
+    //
+    //code starts here:
+    char up[MAX_LEN];
+    char down[MAX_LEN];
+    int i=0;
+    int c='%';
+    char *loc;
+    int pos=0;
+    int flag=0;
+    for(i=0; i<qsize; i++){
+        if(quest[i]=='%'){
+            pos=i;
+            flag=1;
+        }
+    }
+    if(flag==0){
+       for(i=0; i<qsize; i++){
+        up[i]=quest[i];
+        down[i]='\0';
+       } 
+       up[i]='\0';
+       int ul=strlen(up);
+       Gotoxy(width/2-ul/2,height/3);
+       printf("%s",up);
+    }
+    else{
+        for(i=0; i<pos; i++){
+            up[i]=quest[i];
+        }
+        up[i]='\0';
+        int ul=strlen(up);
+        Gotoxy(width/2-ul/2,height/3);
+        printf("%s",up);
+        int j=0;
+        for(i=pos+1; i<qsize; i++){
+            down[j]=quest[i];
+            j++;
+        }
+        down[j]='\0';
+        int dl=strlen(down);
+        Gotoxy(width/2-dl/2,height/3+2);
+        printf("%s",down);
+    } //:ends here
+    Gotoxy(0,height);
 }
 
 struct current{
@@ -180,6 +230,7 @@ char caps_lock_trick(char c){
 
 void win_message(){
     char c[MAX_LEN]="You Win!";
+    system("cls");
     Gotoxy(width/2 - strlen(c)/2, height/2);
     printf("%s",c);
     Gotoxy(0, height);
@@ -256,6 +307,7 @@ void play(){
 }
 
 int main(){
+    system("cls");
 	open_file();
 	play();
 	free(library);
