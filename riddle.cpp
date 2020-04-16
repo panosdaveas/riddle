@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <windows.h>
+
 #define width 20
 #define height 20
 #define MAX_LEN 100
@@ -15,6 +15,14 @@ void SetColorAndBackground(int ForgC, int BackC) {
   WORD wColor = ((BackC & 0x0F) << 4) + (ForgC & 0x0F);
   SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wColor);
   return;
+}
+
+void hidecursor(bool flag) {
+  HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+  CONSOLE_CURSOR_INFO info;
+  info.dwSize = 1;
+  info.bVisible = flag;
+  SetConsoleCursorInfo(consoleHandle, &info);
 }
 
 void Gotoxy(int x, int y) {
@@ -29,7 +37,6 @@ struct index {
   char a[MAX_LEN];
   char h[MAX_LEN];
   int size;
-  int max;
   int count;
 };
 
@@ -58,7 +65,7 @@ void open_file() {
   int sizet = 1;
   char buffer[MAX_LEN];
   while (!feof(fp)) {
-    index stream;
+    char *stream;
     int j = 0;
     library = (index *)realloc(library, sizeof(index) * size);
     char **temp = (char **)malloc(sizeof(char *));
@@ -74,27 +81,25 @@ void open_file() {
         j++;
       }
       int k = 0;
-      int s = 0;
-      int start = 0;
-      int end = 0;
-      int max = 0;
-      stream.q = (char *)malloc(sizeof(char) * j * MAX_LEN);
+     // int s = 0;
+     // int start = 0;
+     // int end = 0;
+	 //		start += end;
+	 //		end += strlen(temp[k]);
+	 //		int c = 0;
+	 //		for (s = start; s <= end; s++) {
+	 //			stream[s] = temp[k][c];
+	 //			c++;
+	 //		}
+      stream = (char *)malloc(sizeof(char) * (j * MAX_LEN));
+      stream[0] = '\0';
       for (k = 0; k < j; k++) {
-        start += end;
-        end += strlen(temp[k]);
-        if (strlen(temp[k]) > max) {
-          max = strlen(temp[k]);
-        }
-        int c = 0;
-        for (s = start; s <= end; s++) {
-          stream.q[s] = temp[k][c++];
-        }
+        strcat(stream, temp[k]);
       }
-      library[i].max = max;
       library[i].count = j;
     }
     library[i].q = (char *)malloc(sizeof(char) * j * MAX_LEN);
-    strcpy(library[i].q, stream.q);
+    strcpy(library[i].q, stream);
     fgets(library[i].a, MAX_LEN, fp);
     fgets(library[i].h, MAX_LEN, fp);
     remove_newline(library[i].a);
@@ -102,11 +107,12 @@ void open_file() {
     library->size = size;
     i++;
     size++;
-    free(stream.q);
+    free(stream);
     free(temp);
   }
   fclose(fp);
 }
+
 
 int is_border(int x, int y) {
   return (x == 0 || x == width - 1 || y == 0 || y == height - 1);
@@ -124,7 +130,6 @@ void print_quest(int r) {
   int j = 0;
   int count = 0;
   char split[library[r].count][MAX_LEN];
-  int size[library[r].count];
   for (i = 0; i <= (strlen(library[r].q)); i++) {
     if (library[r].q[i] == '\n' || library[r].q[i] == '\0') {
       split[count][j] = '\0';
@@ -135,16 +140,24 @@ void print_quest(int r) {
       j++;
     }
   }
-  int y = height / 3;
+  int max = 0;
+  int k = 0;
+  for (k = 0; k < count; k++) {
+    if (strlen(split[k]) > max) {
+      max = strlen(split[k]);
+    }
+  }
+
+  int y = height / 3 - count / 2;
+  int x = width / 2 - max / 2 - max % 2;
   for (int s = 0; s < count; s++) {
-    size[s] = strlen(split[s]);
-    Gotoxy(width / 2 - size[s] / 2 - size[s] % 2, y);
+    Gotoxy(x, y);
     printf("%s", split[s]);
     y++;
   }
 }
 
-void print(int qsize, int asize, char *quest, int level, int curmax) {
+void print(int asize, char *quest, int level) {
   char buffer[width + 1];
   int y = 0;
   for (y = 0; y < height; y++) {
@@ -201,7 +214,6 @@ struct current {
   struct index index;
   int len_q;
   int len_a;
-  int max;
 };
 typedef struct current current;
 
@@ -209,7 +221,6 @@ current currentlevel(current cur, int level) {
   cur.index = library[level];
   cur.len_a = strlen(library[level].a);
   cur.len_q = strlen(library[level].q);
-  cur.max = library[level].max;
   return cur;
 }
 
@@ -217,13 +228,6 @@ void print_hint(char *hint, int i) {
   Gotoxy(width / 2 + 5, height + 3);
   hint = library[i].h;
   printf(":%s", hint);
-}
-
-char caps_lock_trick(char c) {
-  if (c >= 'A' && c <= 'Z') {
-    c += 'a' - 'A';
-  }
-  return c;
 }
 
 void win_message() {
@@ -235,13 +239,20 @@ void win_message() {
   system("pause");
 }
 
+char caps_lock_trick(char c) {
+  if (c >= 'A' && c <= 'Z') {
+    c += 'a' - 'A';
+  }
+  return c;
+}
+
 void play() {
   int level = 0;
   int result;
   do {
     current cur = currentlevel(cur, level);
     do {
-      print(cur.len_q, cur.len_a, cur.index.q, level, cur.max);
+      print( cur.len_a, cur.index.q, level);
       printf("\n    Enter to solve");
       printf("\n     ESC to exit");
       SetColorAndBackground(4, 0);
@@ -301,21 +312,24 @@ void play() {
   }
 }
 
-void welcome(){
-	char wel[11]="Welcome...";
-	int size=strlen(wel);
-	Gotoxy(width/2-size/2,height/3);
-	printf("%s",wel);
-	int i=size-1;
-	int x=width/2+size/2-1;
-	int y=height/3;
-	Sleep(900);
-	for (i=size; i>0; i--){
-		Sleep(300);
-		Gotoxy(x,y);
-		printf(" ");
-		x--;
-	}
+void welcome() {
+  hidecursor(FALSE);
+  char wel[14] = "...Welcome...";
+  int size = strlen(wel);
+  int x=width/2 - size/2;
+  int y= height/3;
+  int i;
+  Sleep(400);
+  for (i=0; i<size; i++){
+	Sleep(200);
+	Gotoxy(x,y);
+	printf("%c",wel[i]);
+	Sleep(200);
+	Gotoxy(x-3,y);
+	printf(" ");
+	x++;
+  }
+  // hidecursor(TRUE);
 }
 
 int main() {
