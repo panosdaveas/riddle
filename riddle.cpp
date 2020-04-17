@@ -81,16 +81,6 @@ void open_file() {
         j++;
       }
       int k = 0;
-     // int s = 0;
-     // int start = 0;
-     // int end = 0;
-	 //		start += end;
-	 //		end += strlen(temp[k]);
-	 //		int c = 0;
-	 //		for (s = start; s <= end; s++) {
-	 //			stream[s] = temp[k][c];
-	 //			c++;
-	 //		}
       stream = (char *)malloc(sizeof(char) * (j * MAX_LEN));
       stream[0] = '\0';
       for (k = 0; k < j; k++) {
@@ -225,8 +215,8 @@ current currentlevel(current cur, int level) {
 }
 
 void print_hint(char *hint, int i) {
-  Gotoxy(width / 2 + 5, height + 3);
   hint = library[i].h;
+  Gotoxy(width / 2 -5, height + 4);
   printf(":%s", hint);
 }
 
@@ -247,10 +237,19 @@ char caps_lock_trick(char c) {
 }
 
 void play() {
-  int level = 0;
+	FILE * fp;
+	char file[15]="player_log.txt";
+	fopen(file,"r");
+	int lvl=0;
+	fscanf(fp,"%d",&lvl);
+	int level =lvl;
+	fclose(fp);
   int result;
   do {
-    current cur = currentlevel(cur, level);
+	fopen(file,"w");
+	fprintf(fp,"%d",level);
+	fclose(fp);
+	  current cur = currentlevel(cur, level);
     do {
       print( cur.len_a, cur.index.q, level);
       printf("\n    Enter to solve");
@@ -332,9 +331,19 @@ void welcome() {
   // hidecursor(TRUE);
 }
 
+void reset_level(){
+	FILE *fp;
+	char file[15]="player_log.txt";
+	int level=0;
+	fp=fopen(file,"w");
+	putw(level,fp);
+	fclose(fp);
+}
+
 int main() {
   system("cls");
   welcome();
+  reset_level();
   system("cls");
   open_file();
   play();
