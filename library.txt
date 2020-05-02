@@ -1,9 +1,4 @@
 
-) o ( ?
-
-newmoon
-hint
-
 1-1
 2-2
 3-3
@@ -11,11 +6,14 @@ hint
 0
 wtf?
 
-was taken
-for a fool
+        ___
+      _|4  |
+   __|3|* *|
+ _|7 |*|* *|
+|7|**| |__h|
 
-took
-LOTR
+hell
+mirror!
 
 death*
 
@@ -42,11 +40,6 @@ FEmale
 ironman
 chemistry
 
-jobs*3.14
-
-applepie
-dessert
-
 4->2->3->0
 
 human
@@ -57,7 +50,7 @@ EADGBE
 guitar
 6 strings
 
-* oooOoooo
+)  o  (  ?
 
-mars
-it starts with a star
+newmoon
+hint
