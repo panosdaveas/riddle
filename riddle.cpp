@@ -376,7 +376,7 @@ int main() {
 	hidecursor(FALSE);
 	system("cls");
 	welcome();
-	reset_level();
+//	reset_level();
 	system("cls");
 	open_file();
 	play();
